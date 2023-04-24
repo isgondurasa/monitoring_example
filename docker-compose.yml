@@ -1,0 +1,60 @@
+version: "3.1"
+
+volumes:
+  prometheus_data: {}
+  grafana_data: {}
+
+services:
+  api:
+    build:
+      dockerfile: ./Dockerfile
+      context: .
+    command: python main.py
+    volumes:
+      - ".:/app"
+    environment:
+      - PORT=5000
+      - EXT_API_BASE_URL=http://ext_api:5000
+    ports:
+      - 8081:5000
+
+  ext_api:
+    build:
+      dockerfile: ./Dockerfile
+      context: .
+    command: python main.py
+    volumes:
+      - ".:/app"
+    environment:
+      - PORT=5000
+    ports:
+      - 8082:5000
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: monitoring_prometheus
+    restart: always
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - 9090:9090
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: monitoring_grafana
+    restart: unless-stopped
+    user: "123"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=123123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - 3010:3000

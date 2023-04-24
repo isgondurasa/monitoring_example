@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "monitoring"
+version = "0.1.0"
+description = ""
+authors = ["Свиридов Андрей Олегович <sviridov_a@tass.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+Flask = "^2.2.3"
+prometheus-flask-exporter = "^0.22.3"
+requests = "^2.28.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
